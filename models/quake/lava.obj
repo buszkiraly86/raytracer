@@ -1,0 +1,12 @@
+# Lava surface in the channel (meant to be a light).
+# 6 vertices, 2 triangles. Part of the Quake-style courtyard scene.
+
+v -8.0000 -2.2500 7.0000
+v 8.0000 -2.2500 7.0000
+v 8.0000 -2.2500 10.0000
+v -8.0000 -2.2500 7.0000
+v 8.0000 -2.2500 10.0000
+v -8.0000 -2.2500 10.0000
+
+f 1 2 3
+f 4 5 6

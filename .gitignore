@@ -1,0 +1,8 @@
+# build output (one folder per CMake configuration)
+build*/
+
+# profiler recordings
+*.json.gz
+
+# macOS
+.DS_Store

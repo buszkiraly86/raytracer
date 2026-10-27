@@ -1,0 +1,12 @@
+# Lava lake (meant to be a light).
+# 6 vertices, 2 triangles. Part of the shrine scene around the knot and ring.
+
+v -80.0000 -3.2000 -12.0000
+v 80.0000 -3.2000 -12.0000
+v 80.0000 -3.2000 120.0000
+v -80.0000 -3.2000 -12.0000
+v 80.0000 -3.2000 120.0000
+v -80.0000 -3.2000 120.0000
+
+f 1 2 3
+f 4 5 6
