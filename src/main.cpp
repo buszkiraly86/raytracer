@@ -14,6 +14,7 @@
 #include <memory>
 #include <filesystem>
 #include <format>
+#include <random>
 
 #include "geometry.h"
 #include "object.h"
@@ -36,6 +37,9 @@ World world;
 
 Color colorAt(int px, int py)
 {
+    thread_local std::mt19937 gen{std::random_device{}()};
+    std::uniform_real_distribution<double> offset{-pixelWidth / 2, pixelWidth / 2};
+
     // night/day scenes:  camera{0, 3, -5},     lookAt{0, 0, 30}
     // knot/mesh scenes:  camera{0, 0.5, -4.5},  lookAt{0, 0, 0}
     glm::dvec3 camera{0, 3, -5};
@@ -47,8 +51,8 @@ Color colorAt(int px, int py)
     glm::dvec3 right = glm::normalize(glm::cross({0, 1, 0}, forward));
     glm::dvec3 up = glm::normalize(glm::cross(forward, right));
 
-    double x = pixelWidth / 2 + pixelWidth * px - halfWidth;
-    double y = pixelWidth / 2 - pixelWidth * py + halfHeight;
+    double x = pixelWidth / 2 + pixelWidth * px - halfWidth + offset(gen);
+    double y = pixelWidth / 2 - pixelWidth * py + halfHeight + offset(gen);
 
     Line l = {
         camera,
