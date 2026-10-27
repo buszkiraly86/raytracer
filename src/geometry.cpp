@@ -33,6 +33,14 @@ std::optional<Intersection> Sphere::intersect(const Line &l) const {
     };
 }
 
+
+BoundingBox Sphere::getBoundingBox() const {
+    return {
+        pos - radius,
+        pos + radius
+    };
+}
+
 Triangle::Triangle(const std::array<glm::dvec3, 3> &points) : points(points) {
     glm::dvec3 AB = points[1] - points[0];
     glm::dvec3 AC = points[2] - points[0];
@@ -72,7 +80,7 @@ std::optional<Intersection> Triangle::intersect(const Line &l) const {
     };
 }
 
-BoundingBox::BoundingBox(std::vector<Triangle> &&triangles) {
+BoundingBox Triangle::getBoundingBox() const {
     glm::dvec3 min{
         std::numeric_limits<double>::infinity()
     };
@@ -80,98 +88,15 @@ BoundingBox::BoundingBox(std::vector<Triangle> &&triangles) {
         -std::numeric_limits<double>::infinity()
     };
 
-    for (const auto &triangle : triangles) {
-        for (const auto &point : triangle.points) {
-            min = glm::min(min, point);
-            max = glm::max(max, point);
-        }
+    for (const auto &point : points) {
+        min = glm::min(min, point);
+        max = glm::max(max, point);
     }
 
-    A = min;
-    B = max;
-
-    if (triangles.size() < 5) { // TODO: magic number
-        this->triangles = std::move(triangles);
-    } else {
-        int longestAxis{};
-        auto diff = B - A;
-        double maxDiff = -std::numeric_limits<double>::infinity();
-        for (int i = 0; i < 3; i++) {
-            if (diff[i] > maxDiff) {
-                longestAxis = i;
-                maxDiff = diff[i];
-            }
-        }
-
-        auto m = triangles.begin() + triangles.size() / 2;
-        std::nth_element(triangles.begin(), m, triangles.end(), [&longestAxis](const Triangle &t1, const Triangle &t2){
-            return (t1.points[0] + t1.points[1] + t1.points[2])[longestAxis] < (t2.points[0] + t2.points[1] + t2.points[2])[longestAxis];
-        });
-
-        std::vector<Triangle> left(std::make_move_iterator(triangles.begin()), std::make_move_iterator(m));
-        std::vector<Triangle> right(std::make_move_iterator(m), std::make_move_iterator(triangles.end()));
-
-        childA = std::make_unique<BoundingBox>(std::move(left));
-        childB = std::make_unique<BoundingBox>(std::move(right));
-    }
-}
-
-std::optional<Intersection> BoundingBox::intersects(const Line &l) const {
-    // A is the min corner, B the max corner.
-    // Each axis gives the interval of t where the ray is between that axis's two walls;
-    // the ray is in the box where all three overlap: from the latest entry to the earliest exit.
-    double enter = 0;                                   // starting at 0 also rejects boxes behind the ray
-    double exit = std::numeric_limits<double>::infinity();
-
-    for (int a = 0; a < 3; ++a) {                       // a = 0, 1, 2 means x, y, z
-        if (std::abs(l.dir[a]) < epsilon) {
-            // parallel to this axis: always between the walls, or never
-            if (l.point[a] < A[a] || l.point[a] > B[a]) return std::nullopt;
-            continue;
-        }
-        double t1 = (A[a] - l.point[a]) / l.dir[a];
-        double t2 = (B[a] - l.point[a]) / l.dir[a];
-        enter = std::max(enter, std::min(t1, t2));      // running max of the entries
-        exit  = std::min(exit,  std::max(t1, t2));      // running min of the exits
-        if (enter > exit) return std::nullopt;          // already left one slab before entering another
-    }
-
-    std::optional<Intersection> Ais{}, Bis{};
-    
-    if (childA) {
-        Ais = childA->intersects(l);
-        Bis = childB->intersects(l);
-        
-        if (Ais && Bis) {
-            if (glm::distance(l.point, Ais->point) < glm::distance(l.point, Bis->point)) {
-                return Ais;
-            } else {
-                return Bis;
-            }
-        } else if (Ais) {
-            return Ais;
-        } else {
-            return Bis;
-        }
-    }
-
-    // if we are still here, this is a leafnode
-    // so let's check its triangles
-    std::optional<Intersection> closest{};
-    double closestDistance = std::numeric_limits<double>::infinity();
-
-    for (const auto &triangle : triangles) {
-        auto intersection = triangle.intersect(l);
-        if (intersection) {
-            double distance = glm::distance(intersection.value().point, l.point);
-            if (distance < closestDistance) {
-                closestDistance = distance;
-                closest = intersection;
-            }
-        }
-    }
-
-    return closest;
+    return {
+        min,
+        max
+    };
 }
 
 Mesh::Mesh(const std::string &filename) {
@@ -179,7 +104,6 @@ Mesh::Mesh(const std::string &filename) {
     if (!file) throw std::runtime_error("cannot open mesh file: " + filename);
 
     std::vector<glm::dvec3> vertices;
-    std::vector<Triangle> triangles;
 
     std::string line;
     while (std::getline(file, line)) {
@@ -218,9 +142,21 @@ Mesh::Mesh(const std::string &filename) {
         // anything else (normals, texture coordinates, materials, groups, comments) is ignored for now
     }
 
-    boundingBox = BoundingBox(std::move(triangles));
+    std::vector<const Triangle*> pointers;
+    std::transform(triangles.begin(), triangles.end(), std::back_inserter(pointers), [](const auto &triangle) {
+        return &triangle;
+    });
+
+    bvh = BVH<Triangle>(std::move(pointers));
 }
 
 std::optional<Intersection> Mesh::intersect(const Line &l) const {
-    return boundingBox.intersects(l);
+    auto i = bvh.intersects(l);
+
+    if (i) return std::get<1>(i.value());
+    else return std::nullopt;
+}
+
+BoundingBox Mesh::getBoundingBox() const {
+    return bvh.box;
 }

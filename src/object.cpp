@@ -26,8 +26,12 @@ glm::dvec3 Object::getColor(const Line &l, const Intersection &intersection) con
     return color * w->getColor(bounceRay);
 }
 
-std::optional<Intersection> Object::getIntersection(const Line &l) const {
+std::optional<Intersection> Object::intersect(const Line &l) const {
     return s->intersect(l);
+}
+
+BoundingBox Object::getBoundingBox() const {
+    return s->getBoundingBox();
 }
 
 glm::dvec3 Object::getRawColor() const {

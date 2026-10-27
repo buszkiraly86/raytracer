@@ -7,14 +7,16 @@
 
 #include "geometry.h"
 #include "object.h"
+#include "bvh.h"
 
 constexpr int bounceLimit = 5;
 
 class World {
     std::vector<std::unique_ptr<Object>> objects;
+    BVH<Object> bvh;
 
 public:
     void addObject(std::unique_ptr<Object> object);
-    std::tuple<Object*, Intersection> getHitObject(const Line &l) const;
+    std::optional<std::tuple<const Object*, Intersection>> getHit(const Line &l) const;
     glm::dvec3 getColor(const Line &l) const;
 };

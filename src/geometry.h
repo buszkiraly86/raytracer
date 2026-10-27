@@ -4,25 +4,17 @@
 #include <optional>
 #include <glm/glm.hpp>
 #include <array>
+#include <string>
+#include <vector>
 
-constexpr double epsilon = 1e-6;
-
-using Color = glm::dvec3;
-
-struct Line {
-    glm::dvec3 point;
-    glm::dvec3 dir;
-    int bounced{};
-};
-
-struct Intersection {
-    glm::dvec3 point;
-    glm::dvec3 surfaceNormal;
-};
+#include "core.h"
+#include "bvh.h"
 
 struct Shape {
-    virtual std::optional<Intersection> intersect(const Line &l) const = 0;
     virtual ~Shape();
+
+    virtual std::optional<Intersection> intersect(const Line &l) const = 0;
+    virtual BoundingBox getBoundingBox() const = 0;
 };
 
 struct Sphere : public Shape {
@@ -32,6 +24,7 @@ struct Sphere : public Shape {
     Sphere(glm::dvec3 pos, double radius);
 
     std::optional<Intersection> intersect(const Line &l) const override;
+    BoundingBox getBoundingBox() const override;
 };
 
 struct Triangle : public Shape {
@@ -41,24 +34,17 @@ struct Triangle : public Shape {
     Triangle(const std::array<glm::dvec3, 3> &points);
 
     std::optional<Intersection> intersect(const Line &l) const override;
-};
-
-struct BoundingBox {
-    std::vector<Triangle> triangles;
-    glm::dvec3 A, B;
-    std::unique_ptr<BoundingBox> childA{}, childB{};
-
-    BoundingBox() = default;
-    BoundingBox(std::vector<Triangle> &&triangles);
-
-    std::optional<Intersection> intersects(const Line &l) const;
+    BoundingBox getBoundingBox() const override;
 };
 
 class Mesh : public Shape {
-    BoundingBox boundingBox;
+    std::vector<Triangle> triangles;
+    BVH<Triangle> bvh;
 
 public:
     Mesh(const std::string &filename);
+    Mesh(const Mesh &) = delete;
 
     std::optional<Intersection> intersect(const Line &l) const override;
+    BoundingBox getBoundingBox() const override;
 };

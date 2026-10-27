@@ -19,7 +19,8 @@ public:
     Object(std::unique_ptr<Shape> s, const World *w, Color color);
     virtual glm::dvec3 getColor(const Line &l, const Intersection &intersection) const;
 
-    std::optional<Intersection> getIntersection(const Line &l) const;
+    std::optional<Intersection> intersect(const Line &l) const;
+    BoundingBox getBoundingBox() const;
     glm::dvec3 getRawColor() const;
 };
 
