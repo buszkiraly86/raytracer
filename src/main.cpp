@@ -614,7 +614,7 @@ int main() {
                             sum += colorAt(x, y);
                             Color avgColor = sum / static_cast<double>(frame);
                             Color capped = glm::clamp(avgColor, 0.0, 1.0);
-                            pixels[x] = SDL_MapRGB(window_surface->format, capped.r * 255, capped.g * 255, capped.b * 255);
+                            pixels[x] = SDL_MapRGB(window_surface->format, sqrt(capped.r) * 255, sqrt(capped.g) * 255, sqrt(capped.b) * 255);
                         }
                     }
                 }, i)
