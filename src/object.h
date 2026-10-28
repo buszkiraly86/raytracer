@@ -5,30 +5,19 @@
 #include <glm/glm.hpp>
 
 #include "geometry.h"
+#include "material.h"
 
 class World;
 
 class Object {
     std::unique_ptr<Shape> s;
     const World *w;
-    Color color;
-
-    Line getBounceRay(const Line &l, const Intersection &intersection) const;
+    Material material;
 
 public:
-    Object(std::unique_ptr<Shape> s, const World *w, Color color);
+    Object(std::unique_ptr<Shape> s, const World *w, Material material);
     virtual glm::dvec3 getColor(const Line &l, const Intersection &intersection) const;
 
     std::optional<Intersection> intersect(const Line &l) const;
     BoundingBox getBoundingBox() const;
-    glm::dvec3 getRawColor() const;
-};
-
-class Light : public Object {
-    double intensity{};
-
-public:
-    Light(std::unique_ptr<Shape> s, const World *w, Color color, double intensity);
-
-    glm::dvec3 getColor(const Line &l, const Intersection &intersection) const override;
 };

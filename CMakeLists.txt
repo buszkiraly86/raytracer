@@ -12,6 +12,7 @@ add_executable(raytracer
     src/geometry.cpp
     src/object.cpp
     src/world.cpp
+    src/scene.cpp
 )
 
 target_link_libraries(raytracer PRIVATE SDL2::SDL2)
