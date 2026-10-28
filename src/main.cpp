@@ -30,7 +30,7 @@ constexpr double halfHeight = 0.5;
 double d = halfWidth / std::tan(FOV / 2);
 constexpr double pixelWidth = 1.0 / height;
 
-World world;
+Scene scene;
 
 /*
     This is a left handed coordinate system
@@ -41,11 +41,8 @@ Color colorAt(int px, int py)
     thread_local std::mt19937 gen{std::random_device{}()};
     std::uniform_real_distribution<double> offset{-pixelWidth / 2, pixelWidth / 2};
 
-    // test scene:        camera{0, 3.5, -1},    lookAt{0, 1, 8}
-    // day scene:         camera{0, 3, -5},      lookAt{0, 0, 30}
-    // knot/mesh scenes:  camera{0, 0.5, -4.5},  lookAt{0, 0, 0}
-    glm::dvec3 camera{0, 3.5, -1};
-    glm::dvec3 lookAt{0, 1, 8};
+    const glm::dvec3 &camera = scene.camera.position;
+    const glm::dvec3 &lookAt = scene.camera.lookAt;
 
     // TODO:
     // coordinate system generation breaks if it points straight up or down
@@ -61,18 +58,18 @@ Color colorAt(int px, int py)
         glm::normalize(d * forward + x * right + y * up),
     };
 
-    return world.getColor(ray);
+    return scene.world.getColor(ray);
 }
 
 int main() {
-    // pick a scene (the camera in colorAt has to match it, see the comment there)
-    world = buildTestScene();
-    // world = buildDayScene();
-    // world = buildKnotScene();
-    // world = buildShellScene();
-    // world = buildKnotRingScene();
-    // world = buildShrineScene();
-    // world = buildArmillaryScene();
+    // pick a scene
+    scene = buildTestScene();
+    // scene = buildDayScene();
+    // scene = buildKnotScene();
+    // scene = buildShellScene();
+    // scene = buildKnotRingScene();
+    // scene = buildShrineScene();
+    // scene = buildArmillaryScene();
 
     if(SDL_Init(SDL_INIT_VIDEO) < 0)
     {

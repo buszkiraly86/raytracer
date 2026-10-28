@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <memory>
 #include <numbers>
+#include <utility>
 #include <glm/glm.hpp>
 
 #include "geometry.h"
@@ -75,7 +76,7 @@ void present(World &world, glm::dvec3 lo, glm::dvec3 hi, Color paper, Color ribb
 
 // test scene for materials: a checkerboard floor, a row of identical silver spheres from sharp to blurry
 // (roughness 0.01 .. 0.4, left to right), and red/green/blue blocks behind them to reflect
-World buildTestScene() {
+Scene buildTestScene() {
     World world;
 
     // checkerboard floor, slightly glossy so it shows blurred reflections of the spheres
@@ -115,11 +116,11 @@ World buildTestScene() {
         lightTriangle(world, a, c, d, ribbonColors[k % 6], 1.2);
     }
 
-    return world;
+    return {std::move(world), Camera{{0, 3.5, -1}, {0, 1, 8}}};
 }
 
 // bright snowy day, everything closer to the camera
-World buildDayScene() {
+Scene buildDayScene() {
     World world;
 
     const Color snowWhite{1.0, 1.0, 1.0};
@@ -293,11 +294,11 @@ World buildDayScene() {
         sphere(world, pos, 0.045, Color{1.0, 1.0, 1.0});
     }
 
-    return world;
+    return {std::move(world), Camera{{0, 3, -5}, {0, 0, 30}}};
 }
 
 // just the trefoil knot, lit by lights that are all outside the frame
-World buildKnotScene() {
+Scene buildKnotScene() {
     World world;
 
     // models/ sits next to src/, so find it from this source file's path (works from any working directory)
@@ -309,11 +310,11 @@ World buildKnotScene() {
     lightSphere(world, {9, 6, 6}, 2, Color{0.6, 0.7, 1.0}, 4);          // cool rim light, behind right
     lightSphere(world, {0, 6, -30}, 10, Color{0.9, 0.9, 1.0}, 1.5);     // soft fill behind the camera
 
-    return world;
+    return {std::move(world), Camera{{0, 0.5, -4.5}, {0, 0, 0}}};
 }
 
 // the seashell: same lights as the knot scene
-World buildShellScene() {
+Scene buildShellScene() {
     World world;
 
     auto shellFile = std::filesystem::path(__FILE__).parent_path().parent_path() / "models" / "seashell.obj";
@@ -324,11 +325,11 @@ World buildShellScene() {
     lightSphere(world, {9, 6, 6}, 2, Color{0.6, 0.7, 1.0}, 4);          // cool rim light, behind right
     lightSphere(world, {0, 6, -30}, 10, Color{0.9, 0.9, 1.0}, 1.5);     // soft fill behind the camera
 
-    return world;
+    return {std::move(world), Camera{{0, 0.5, -4.5}, {0, 0, 0}}};
 }
 
 // the copper knot floating inside the silver star ring, same lights as the knot scene
-World buildKnotRingScene() {
+Scene buildKnotRingScene() {
     World world;
 
     auto models = std::filesystem::path(__FILE__).parent_path().parent_path() / "models";
@@ -341,12 +342,12 @@ World buildKnotRingScene() {
     lightSphere(world, {9, 6, 6}, 2, Color{0.6, 0.7, 1.0}, 4);          // cool rim light, behind right
     lightSphere(world, {0, 6, -30}, 10, Color{0.9, 0.9, 1.0}, 1.5);     // soft fill behind the camera
 
-    return world;
+    return {std::move(world), Camera{{0, 0.5, -4.5}, {0, 0, 0}}};
 }
 
 // the knot and ring as a Quake-style artifact: hung on chains above an altar with a glowing
 // summoning circle, iron spikes, fire braziers on obelisks, and a lava lake to the horizon (models/shrine)
-World buildShrineScene() {
+Scene buildShrineScene() {
     World world;
 
     auto models = std::filesystem::path(__FILE__).parent_path().parent_path() / "models";
@@ -372,12 +373,12 @@ World buildShrineScene() {
     lightSphere(world, {-6, 5, -2}, 3, Color{1.0, 0.85, 0.65}, 2);      // warm key light, front left (out of view)
     lightSphere(world, {0, 6, -30}, 10, Color{0.9, 0.85, 0.8}, 1.0);    // dim fill behind the camera
 
-    return world;
+    return {std::move(world), Camera{{0, 0.5, -4.5}, {0, 0, 0}}};
 }
 
 // armillary: the chrome knot inside the gunmetal star ring, with two thin glowing orbits
 // (cyan and amber) sweeping around them as the main lights, over a near-black glossy floor
-World buildArmillaryScene() {
+Scene buildArmillaryScene() {
     World world;
 
     auto models = std::filesystem::path(__FILE__).parent_path().parent_path() / "models";
@@ -402,5 +403,5 @@ World buildArmillaryScene() {
     lightSphere(world, {6, 1, 1}, 2.5, Color{1.0, 0.55, 0.2}, 6);
     lightSphere(world, {0, 12, 2}, 4, Color{1.0, 0.95, 0.9}, 1.0);              // soft white light high above
 
-    return world;
+    return {std::move(world), Camera{{0, 0.5, -4.5}, {0, 0, 0}}};
 }
