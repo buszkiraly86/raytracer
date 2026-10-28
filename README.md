@@ -45,33 +45,11 @@ Use a Release build: a debug build is many times slower.
 To render a different scene, change which `build...Scene()` call is active at the top of `main()` in
 [`src/main.cpp`](src/main.cpp). The scenes themselves are in [`src/scene.cpp`](src/scene.cpp).
 
-## How it's organised
-
-| File | What it holds |
-|---|---|
-| `core.h` | Small value types used everywhere: `Ray`, `Intersection`, `BoundingBox` |
-| `geometry.h/.cpp` | The `Shape` interface, with `Sphere`, `Triangle` and `Mesh` (OBJ loading, and a BVH over its triangles) |
-| `bvh.h` | The generic `BVH<T>`: construction, box tests and nearest-hit search |
-| `material.h` | Colour, roughness and emission, and how a surface scatters a ray |
-| `object.h/.cpp` | A shape paired with a material |
-| `world.h/.cpp` | All objects in a scene, a BVH over them, and the tracing itself |
-| `scene.h/.cpp` | The scenes, each with its camera |
-| `main.cpp` | Window, camera rays, threads and progressive accumulation |
-
 ## Models
 
 The OBJ files in [`models/`](models) are procedural: the trefoil knot, the twisted star ring, the seashell, the orbit
 rings and the shrine pieces were each generated from their mathematical description by small Python scripts.
-Those scripts were written by Claude (an AI assistant) during development and are not part of this repository.
-
-## Current limitations
-
-- There is one material model, a blurred mirror: no matte (diffuse) surfaces and no glass, and it is not
-  physically based (it doesn't conserve energy).
-- A roughness of exactly 0 isn't supported yet.
-- Meshes are flat-shaded, so their facets show.
-- Meshes can't be moved, rotated or scaled; they render where their OBJ file places them.
-- The scene is chosen in code, not on the command line.
+Those scripts were written by Claude during development and are not part of this repository.
 
 ## License
 
