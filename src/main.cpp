@@ -56,12 +56,12 @@ Color colorAt(int px, int py)
     double x = pixelWidth / 2 + pixelWidth * px - halfWidth + offset(gen);
     double y = pixelWidth / 2 - pixelWidth * py + halfHeight + offset(gen);
 
-    Line l = {
+    Ray ray = {
         camera,
         glm::normalize(d * forward + x * right + y * up),
     };
 
-    return world->getColor(l);
+    return world->getColor(ray);
 }
 
 int main() {

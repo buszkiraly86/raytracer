@@ -13,7 +13,7 @@
 struct Shape {
     virtual ~Shape();
 
-    virtual std::optional<Intersection> intersect(const Line &l) const = 0;
+    virtual std::optional<Intersection> intersect(const Ray &ray) const = 0;
     virtual BoundingBox getBoundingBox() const = 0;
 };
 
@@ -23,7 +23,7 @@ struct Sphere : public Shape {
 
     Sphere(glm::dvec3 pos, double radius);
 
-    std::optional<Intersection> intersect(const Line &l) const override;
+    std::optional<Intersection> intersect(const Ray &ray) const override;
     BoundingBox getBoundingBox() const override;
 };
 
@@ -33,7 +33,7 @@ struct Triangle : public Shape {
 
     Triangle(const std::array<glm::dvec3, 3> &points);
 
-    std::optional<Intersection> intersect(const Line &l) const override;
+    std::optional<Intersection> intersect(const Ray &ray) const override;
     BoundingBox getBoundingBox() const override;
 };
 
@@ -45,6 +45,6 @@ public:
     Mesh(const std::string &filename);
     Mesh(const Mesh &) = delete;
 
-    std::optional<Intersection> intersect(const Line &l) const override;
+    std::optional<Intersection> intersect(const Ray &ray) const override;
     BoundingBox getBoundingBox() const override;
 };

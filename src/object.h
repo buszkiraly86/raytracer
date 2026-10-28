@@ -16,8 +16,8 @@ class Object {
 
 public:
     Object(std::unique_ptr<Shape> s, const World *w, Material material);
-    virtual glm::dvec3 getColor(const Line &l, const Intersection &intersection) const;
+    virtual glm::dvec3 getColor(const Ray &ray, const Intersection &intersection) const;
 
-    std::optional<Intersection> intersect(const Line &l) const;
+    std::optional<Intersection> intersect(const Ray &ray) const;
     BoundingBox getBoundingBox() const;
 };

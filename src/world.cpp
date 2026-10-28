@@ -13,17 +13,17 @@ void World::addObject(std::unique_ptr<Object> object) {
     bvh = BVH<Object>(std::move(pointers));
 }
 
-std::optional<std::tuple<const Object*, Intersection>> World::getHit(const Line &l) const {
-    return bvh.intersects(l);
+std::optional<std::tuple<const Object*, Intersection>> World::getHit(const Ray &ray) const {
+    return bvh.intersects(ray);
 }
 
-glm::dvec3 World::getColor(const Line &l) const {
-    if (l.bounced > bounceLimit) return {0, 0, 0};
+glm::dvec3 World::getColor(const Ray &ray) const {
+    if (ray.bounced > bounceLimit) return {0, 0, 0};
 
-    auto hit = getHit(l);
+    auto hit = getHit(ray);
     if (!hit) return {0.06, 0.09, 0.2};    // sky: night blue
 
     auto [o, i] = *hit;
 
-    return o->getColor(l, i);
+    return o->getColor(ray, i);
 }

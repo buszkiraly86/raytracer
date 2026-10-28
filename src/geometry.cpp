@@ -10,10 +10,10 @@ Shape::~Shape() {};
 
 Sphere::Sphere(glm::dvec3 pos, double radius) : pos(pos), radius(radius) {}
 
-std::optional<Intersection> Sphere::intersect(const Line &l) const {
-    auto diff = l.point - pos;
+std::optional<Intersection> Sphere::intersect(const Ray &ray) const {
+    auto diff = ray.point - pos;
     double a = 1;
-    double b = 2 * glm::dot(l.dir, diff);
+    double b = 2 * glm::dot(ray.dir, diff);
     double c = (diff.x) * (diff.x) + (diff.y) * (diff.y) + (diff.z) * (diff.z) - radius * radius;
     double discriminant = b * b - 4 * a * c;
     double root = sqrt(discriminant);
@@ -24,7 +24,7 @@ std::optional<Intersection> Sphere::intersect(const Line &l) const {
     if (t < epsilon) t = (-b + root) / (2 * a);
     if (t < epsilon) return std::nullopt;
 
-    auto intersectionPoint = l.point + l.dir * t;
+    auto intersectionPoint = ray.point + ray.dir * t;
     auto surfaceNormal = glm::normalize(intersectionPoint - pos);
 
     return Intersection {
@@ -51,24 +51,24 @@ Triangle::Triangle(const std::array<glm::dvec3, 3> &points) : points(points) {
     normal = glm::normalize(glm::cross(AB, AC));
 }
 
-std::optional<Intersection> Triangle::intersect(const Line &l) const {
-    if (std::abs(glm::dot(normal, l.dir)) < epsilon) return std::nullopt;
+std::optional<Intersection> Triangle::intersect(const Ray &ray) const {
+    if (std::abs(glm::dot(normal, ray.dir)) < epsilon) return std::nullopt;
 
     auto &u = points[0];
     auto v = points[1] - u;
     auto w = points[2] - u;
-    auto x = l.point - u;
+    auto x = ray.point - u;
 
     // Möller–Trumbore: Cramer's rule on [-dir | v | w] * (t, b, c) = x,
     // with the determinants written as dot(a, cross(b, c)) and the two cross products shared
-    auto p = glm::cross(l.dir, w);
+    auto p = glm::cross(ray.dir, w);
     double inv = 1.0 / glm::dot(v, p);
 
     double b = glm::dot(x, p) * inv;
     if (b < 0 || b > 1) return std::nullopt;
 
     auto q = glm::cross(x, v);
-    double c = glm::dot(l.dir, q) * inv;
+    double c = glm::dot(ray.dir, q) * inv;
     if (c < 0 || b + c > 1) return std::nullopt;
 
     double t = glm::dot(w, q) * inv;
@@ -150,8 +150,8 @@ Mesh::Mesh(const std::string &filename) {
     bvh = BVH<Triangle>(std::move(pointers));
 }
 
-std::optional<Intersection> Mesh::intersect(const Line &l) const {
-    auto i = bvh.intersects(l);
+std::optional<Intersection> Mesh::intersect(const Ray &ray) const {
+    auto i = bvh.intersects(ray);
 
     if (i) return std::get<1>(i.value());
     else return std::nullopt;

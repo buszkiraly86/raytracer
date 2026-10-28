@@ -8,7 +8,7 @@ constexpr double epsilon = 1e-6;
 
 using Color = glm::dvec3;
 
-struct Line {
+struct Ray {
     glm::dvec3 point;
     glm::dvec3 dir;
     int bounced{};
