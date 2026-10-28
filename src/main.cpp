@@ -60,25 +60,6 @@ Color colorAt(int px, int py)
         camera,
         glm::normalize(d * forward + x * right + y * up),
     };
-    // Sphere s = {
-    //     {1, 0.1, 0.1},
-    //     glm::dvec3{0, 2, 10},
-    //     2
-    // };
-    // Plane p = {
-    //     {0.1, 0.1, 0.4},
-    //     glm::dvec3{0, 0, 0},
-    //     glm::dvec3{0, 1, 0}
-    // };
-    // LightSource skyLight = {
-    //     {1, 1, 1},
-    //     std::make_unique<Plane>({
-    //         {0.1, 0.1, 0.4},
-    //         glm::dvec3{0, 0, 0},
-    //         glm::dvec3{0, 1, 0}
-    //     }),
-    //     1
-    // };
 
     return world->getColor(l);
 }
