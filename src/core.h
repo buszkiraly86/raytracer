@@ -11,7 +11,6 @@ using Color = glm::dvec3;
 struct Ray {
     glm::dvec3 point;
     glm::dvec3 dir;
-    int bounced{};
 };
 
 struct Intersection {

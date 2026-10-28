@@ -17,13 +17,20 @@ std::optional<std::tuple<const Object*, Intersection>> World::getHit(const Ray &
     return bvh.intersects(ray);
 }
 
-glm::dvec3 World::getColor(const Ray &ray) const {
-    if (ray.bounced > bounceLimit) return {0, 0, 0};
+glm::dvec3 World::getColor(const Ray &ray, int depth) const {
+    if (depth >= bounceLimit) return {0, 0, 0};
 
     auto hit = getHit(ray);
-    if (!hit) return {0.06, 0.09, 0.2};    // sky: night blue
+    if (!hit) return {0, 0, 0};
 
-    auto [o, i] = *hit;
+    auto [object, intersection] = *hit;
+    const auto &material = object->getMaterial();
 
-    return o->getColor(ray, i);
+    glm::dvec3 idealReflection = glm::reflect(ray.dir, intersection.surfaceNormal);
+    Ray bounce{
+        intersection.point,
+        object->scatter(idealReflection)
+    };
+
+    return material.color * material.emission + material.color * getColor(bounce, depth + 1);
 }

@@ -18,5 +18,6 @@ class World {
 public:
     void addObject(std::unique_ptr<Object> object);
     std::optional<std::tuple<const Object*, Intersection>> getHit(const Ray &ray) const;
-    glm::dvec3 getColor(const Ray &ray) const;
+    // the light coming back along this ray; depth counts the bounces so far
+    glm::dvec3 getColor(const Ray &ray, int depth = 0) const;
 };

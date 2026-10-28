@@ -20,18 +20,18 @@ Material glossy(Color color, double emission = 0) {
 }
 
 void sphere(World &world, glm::dvec3 pos, double radius, Color color, double roughness = 0.5) {
-    world.addObject(std::make_unique<Object>(std::make_unique<Sphere>(pos, radius), &world, Material{color, roughness, 0}));
+    world.addObject(std::make_unique<Object>(std::make_unique<Sphere>(pos, radius), Material{color, roughness, 0}));
 }
 void lightSphere(World &world, glm::dvec3 pos, double radius, Color color, double intensity) {
-    world.addObject(std::make_unique<Object>(std::make_unique<Sphere>(pos, radius), &world, glossy(color, intensity)));
+    world.addObject(std::make_unique<Object>(std::make_unique<Sphere>(pos, radius), glossy(color, intensity)));
 }
 void triangle(World &world, glm::dvec3 a, glm::dvec3 b, glm::dvec3 c, Color color, double roughness = 0.5) {
     world.addObject(std::make_unique<Object>(
-        std::make_unique<Triangle>(std::array<glm::dvec3, 3>{a, b, c}), &world, Material{color, roughness, 0}));
+        std::make_unique<Triangle>(std::array<glm::dvec3, 3>{a, b, c}), Material{color, roughness, 0}));
 }
 void lightTriangle(World &world, glm::dvec3 a, glm::dvec3 b, glm::dvec3 c, Color color, double intensity) {
     world.addObject(std::make_unique<Object>(
-        std::make_unique<Triangle>(std::array<glm::dvec3, 3>{a, b, c}), &world, glossy(color, intensity)));
+        std::make_unique<Triangle>(std::array<glm::dvec3, 3>{a, b, c}), glossy(color, intensity)));
 }
 
 // open cone (sides only) from a base circle to an apex, in any direction
@@ -75,9 +75,8 @@ void present(World &world, glm::dvec3 lo, glm::dvec3 hi, Color paper, Color ribb
 
 // test scene for materials: a checkerboard floor, a row of identical silver spheres from sharp to blurry
 // (roughness 0.01 .. 0.4, left to right), and red/green/blue blocks behind them to reflect
-std::unique_ptr<World> buildTestScene() {
-    auto result = std::make_unique<World>();
-    World &world = *result;
+World buildTestScene() {
+    World world;
 
     // checkerboard floor, slightly glossy so it shows blurred reflections of the spheres
     for (int ix = -5; ix < 5; ++ix) {
@@ -116,13 +115,12 @@ std::unique_ptr<World> buildTestScene() {
         lightTriangle(world, a, c, d, ribbonColors[k % 6], 1.2);
     }
 
-    return result;
+    return world;
 }
 
 // bright snowy day, everything closer to the camera
-std::unique_ptr<World> buildDayScene() {
-    auto result = std::make_unique<World>();
-    World &world = *result;
+World buildDayScene() {
+    World world;
 
     const Color snowWhite{1.0, 1.0, 1.0};
 
@@ -295,72 +293,68 @@ std::unique_ptr<World> buildDayScene() {
         sphere(world, pos, 0.045, Color{1.0, 1.0, 1.0});
     }
 
-    return result;
+    return world;
 }
 
 // just the trefoil knot, lit by lights that are all outside the frame
-std::unique_ptr<World> buildKnotScene() {
-    auto result = std::make_unique<World>();
-    World &world = *result;
+World buildKnotScene() {
+    World world;
 
     // models/ sits next to src/, so find it from this source file's path (works from any working directory)
     auto knotFile = std::filesystem::path(__FILE__).parent_path().parent_path() / "models" / "trefoil_knot.obj";
-    world.addObject(std::make_unique<Object>(std::make_unique<Mesh>(knotFile.string()), &world,
+    world.addObject(std::make_unique<Object>(std::make_unique<Mesh>(knotFile.string()),
                                              glossy(Color{0.95, 0.65, 0.3})));    // copper
 
     lightSphere(world, {-6, 5, -2}, 3, Color{1.0, 0.85, 0.65}, 4);      // warm key light, front left
     lightSphere(world, {9, 6, 6}, 2, Color{0.6, 0.7, 1.0}, 4);          // cool rim light, behind right
     lightSphere(world, {0, 6, -30}, 10, Color{0.9, 0.9, 1.0}, 1.5);     // soft fill behind the camera
 
-    return result;
+    return world;
 }
 
 // the seashell: same lights as the knot scene
-std::unique_ptr<World> buildShellScene() {
-    auto result = std::make_unique<World>();
-    World &world = *result;
+World buildShellScene() {
+    World world;
 
     auto shellFile = std::filesystem::path(__FILE__).parent_path().parent_path() / "models" / "seashell.obj";
-    world.addObject(std::make_unique<Object>(std::make_unique<Mesh>(shellFile.string()), &world,
+    world.addObject(std::make_unique<Object>(std::make_unique<Mesh>(shellFile.string()),
                                              glossy(Color{0.95, 0.82, 0.75})));   // pearly pink
 
     lightSphere(world, {-6, 5, -2}, 3, Color{1.0, 0.85, 0.65}, 4);      // warm key light, front left
     lightSphere(world, {9, 6, 6}, 2, Color{0.6, 0.7, 1.0}, 4);          // cool rim light, behind right
     lightSphere(world, {0, 6, -30}, 10, Color{0.9, 0.9, 1.0}, 1.5);     // soft fill behind the camera
 
-    return result;
+    return world;
 }
 
 // the copper knot floating inside the silver star ring, same lights as the knot scene
-std::unique_ptr<World> buildKnotRingScene() {
-    auto result = std::make_unique<World>();
-    World &world = *result;
+World buildKnotRingScene() {
+    World world;
 
     auto models = std::filesystem::path(__FILE__).parent_path().parent_path() / "models";
     world.addObject(std::make_unique<Object>(std::make_unique<Mesh>((models / "trefoil_knot.obj").string()),
-                                             &world, glossy(Color{0.95, 0.65, 0.3})));    // copper
+                                             glossy(Color{0.95, 0.65, 0.3})));    // copper
     world.addObject(std::make_unique<Object>(std::make_unique<Mesh>((models / "star_ring.obj").string()),
-                                             &world, glossy(Color{0.85, 0.87, 0.92})));   // silver
+                                             glossy(Color{0.85, 0.87, 0.92})));   // silver
 
     lightSphere(world, {-6, 5, -2}, 3, Color{1.0, 0.85, 0.65}, 4);      // warm key light, front left
     lightSphere(world, {9, 6, 6}, 2, Color{0.6, 0.7, 1.0}, 4);          // cool rim light, behind right
     lightSphere(world, {0, 6, -30}, 10, Color{0.9, 0.9, 1.0}, 1.5);     // soft fill behind the camera
 
-    return result;
+    return world;
 }
 
 // Quake-style courtyard: tiled hall, lava channel with a bridge, stairs up to a slipgate,
 // the ring-and-nail emblem on the back wall, torches on the pillars (models/quake, about 6800 triangles)
-std::unique_ptr<World> buildQuakeScene() {
-    auto result = std::make_unique<World>();
-    World &world = *result;
+World buildQuakeScene() {
+    World world;
 
     auto dir = std::filesystem::path(__FILE__).parent_path().parent_path() / "models" / "quake";
     auto mesh = [&](const char *name, Color color) {
-        world.addObject(std::make_unique<Object>(std::make_unique<Mesh>((dir / name).string()), &world, glossy(color)));
+        world.addObject(std::make_unique<Object>(std::make_unique<Mesh>((dir / name).string()), glossy(color)));
     };
     auto glowingMesh = [&](const char *name, Color color, double intensity) {
-        world.addObject(std::make_unique<Object>(std::make_unique<Mesh>((dir / name).string()), &world, glossy(color, intensity)));
+        world.addObject(std::make_unique<Object>(std::make_unique<Mesh>((dir / name).string()), glossy(color, intensity)));
     };
 
     mesh("stone.obj",    Color{0.50, 0.42, 0.34});        // stone structure
@@ -387,21 +381,20 @@ std::unique_ptr<World> buildQuakeScene() {
     lightSphere(world, {-25, 45, 50}, 10, Color{0.75, 0.8, 1.0}, 3);
     lightSphere(world, {0, 5, -25}, 8, Color{1.0, 0.75, 0.5}, 1.5);
 
-    return result;
+    return world;
 }
 
 // the knot and ring as a Quake-style artifact: hung on chains above an altar with a glowing
 // summoning circle, iron spikes, fire braziers on obelisks, and a lava lake to the horizon (models/shrine)
-std::unique_ptr<World> buildShrineScene() {
-    auto result = std::make_unique<World>();
-    World &world = *result;
+World buildShrineScene() {
+    World world;
 
     auto models = std::filesystem::path(__FILE__).parent_path().parent_path() / "models";
     auto mesh = [&](std::filesystem::path file, Color color) {
-        world.addObject(std::make_unique<Object>(std::make_unique<Mesh>(file.string()), &world, glossy(color)));
+        world.addObject(std::make_unique<Object>(std::make_unique<Mesh>(file.string()), glossy(color)));
     };
     auto glowingMesh = [&](std::filesystem::path file, Color color, double intensity) {
-        world.addObject(std::make_unique<Object>(std::make_unique<Mesh>(file.string()), &world, glossy(color, intensity)));
+        world.addObject(std::make_unique<Object>(std::make_unique<Mesh>(file.string()), glossy(color, intensity)));
     };
 
     mesh(models / "trefoil_knot.obj",     Color{0.8, 0.5, 0.25});      // bronze
@@ -419,21 +412,20 @@ std::unique_ptr<World> buildShrineScene() {
     lightSphere(world, {-6, 5, -2}, 3, Color{1.0, 0.85, 0.65}, 2);      // warm key light, front left (out of view)
     lightSphere(world, {0, 6, -30}, 10, Color{0.9, 0.85, 0.8}, 1.0);    // dim fill behind the camera
 
-    return result;
+    return world;
 }
 
 // armillary: the chrome knot inside the gunmetal star ring, with two thin glowing orbits
 // (cyan and amber) sweeping around them as the main lights, over a near-black glossy floor
-std::unique_ptr<World> buildArmillaryScene() {
-    auto result = std::make_unique<World>();
-    World &world = *result;
+World buildArmillaryScene() {
+    World world;
 
     auto models = std::filesystem::path(__FILE__).parent_path().parent_path() / "models";
     auto mesh = [&](std::filesystem::path file, Color color) {
-        world.addObject(std::make_unique<Object>(std::make_unique<Mesh>(file.string()), &world, glossy(color)));
+        world.addObject(std::make_unique<Object>(std::make_unique<Mesh>(file.string()), glossy(color)));
     };
     auto glowingMesh = [&](std::filesystem::path file, Color color, double intensity) {
-        world.addObject(std::make_unique<Object>(std::make_unique<Mesh>(file.string()), &world, glossy(color, intensity)));
+        world.addObject(std::make_unique<Object>(std::make_unique<Mesh>(file.string()), glossy(color, intensity)));
     };
 
     mesh(models / "trefoil_knot.obj", Color{0.92, 0.92, 0.95});        // chrome
@@ -450,5 +442,5 @@ std::unique_ptr<World> buildArmillaryScene() {
     lightSphere(world, {6, 1, 1}, 2.5, Color{1.0, 0.55, 0.2}, 6);
     lightSphere(world, {0, 12, 2}, 4, Color{1.0, 0.95, 0.9}, 1.0);              // soft white light high above
 
-    return result;
+    return world;
 }

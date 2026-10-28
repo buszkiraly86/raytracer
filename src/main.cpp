@@ -30,7 +30,7 @@ constexpr double halfHeight = 0.5;
 double d = halfWidth / std::tan(FOV / 2);
 constexpr double pixelWidth = 1.0 / height;
 
-std::unique_ptr<World> world;
+World world;
 
 /*
     This is a left handed coordinate system
@@ -61,7 +61,7 @@ Color colorAt(int px, int py)
         glm::normalize(d * forward + x * right + y * up),
     };
 
-    return world->getColor(ray);
+    return world.getColor(ray);
 }
 
 int main() {
