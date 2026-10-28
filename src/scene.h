@@ -8,6 +8,5 @@ World buildDayScene();
 World buildKnotScene();
 World buildShellScene();
 World buildKnotRingScene();
-World buildQuakeScene();
 World buildShrineScene();
 World buildArmillaryScene();

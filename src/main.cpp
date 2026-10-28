@@ -71,7 +71,6 @@ int main() {
     // world = buildKnotScene();
     // world = buildShellScene();
     // world = buildKnotRingScene();
-    // world = buildQuakeScene();
     // world = buildShrineScene();
     // world = buildArmillaryScene();
 

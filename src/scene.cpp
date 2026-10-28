@@ -344,46 +344,6 @@ World buildKnotRingScene() {
     return world;
 }
 
-// Quake-style courtyard: tiled hall, lava channel with a bridge, stairs up to a slipgate,
-// the ring-and-nail emblem on the back wall, torches on the pillars (models/quake, about 6800 triangles)
-World buildQuakeScene() {
-    World world;
-
-    auto dir = std::filesystem::path(__FILE__).parent_path().parent_path() / "models" / "quake";
-    auto mesh = [&](const char *name, Color color) {
-        world.addObject(std::make_unique<Object>(std::make_unique<Mesh>((dir / name).string()), glossy(color)));
-    };
-    auto glowingMesh = [&](const char *name, Color color, double intensity) {
-        world.addObject(std::make_unique<Object>(std::make_unique<Mesh>((dir / name).string()), glossy(color, intensity)));
-    };
-
-    mesh("stone.obj",    Color{0.50, 0.42, 0.34});        // stone structure
-    mesh("blocks_a.obj", Color{0.70, 0.58, 0.45});        // tiles and bricks in three shades
-    mesh("blocks_b.obj", Color{0.62, 0.50, 0.39});
-    mesh("blocks_c.obj", Color{0.78, 0.64, 0.48});
-    mesh("metal.obj",    Color{0.55, 0.52, 0.50});
-    mesh("wood.obj",     Color{0.50, 0.33, 0.16});
-
-    glowingMesh("lava.obj",   Color{1.0, 0.35, 0.05}, 2.5);
-    glowingMesh("emblem.obj", Color{1.0, 0.3, 0.08}, 1.3);
-    glowingMesh("portal.obj", Color{0.45, 0.35, 1.0}, 1.8);
-
-    // torch flames: on the inner faces of the pillars, and two on the back wall
-    const glm::dvec3 torches[] = {
-        {-5.18, 1.58, -2}, {-5.18, 1.58, 3}, {-5.18, 1.58, 12.5}, {-5.18, 3.98, 23}, {-5.18, 3.98, 28},
-        { 5.18, 1.58, -2}, { 5.18, 1.58, 3}, { 5.18, 1.58, 12.5}, { 5.18, 3.98, 23}, { 5.18, 3.98, 28},
-        {-3.6, 3.98, 29.55}, {3.6, 3.98, 29.55},
-    };
-    for (const auto &t : torches)
-        lightSphere(world, t, 0.28, Color{1.0, 0.6, 0.25}, 6);
-
-    // moon high above the courtyard (out of view) and a dim warm glow behind the camera
-    lightSphere(world, {-25, 45, 50}, 10, Color{0.75, 0.8, 1.0}, 3);
-    lightSphere(world, {0, 5, -25}, 8, Color{1.0, 0.75, 0.5}, 1.5);
-
-    return world;
-}
-
 // the knot and ring as a Quake-style artifact: hung on chains above an altar with a glowing
 // summoning circle, iron spikes, fire braziers on obelisks, and a lava lake to the horizon (models/shrine)
 World buildShrineScene() {
