@@ -1,4 +1,3 @@
-#include <print>
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <cmath>
@@ -6,13 +5,7 @@
 #include <thread>
 #include <chrono>
 #include <glm/glm.hpp>
-#include <algorithm>
-#include <limits>
-#include <optional>
 #include <vector>
-#include <ranges>
-#include <memory>
-#include <filesystem>
 #include <format>
 #include <random>
 
@@ -73,8 +66,8 @@ int main() {
 
     if(SDL_Init(SDL_INIT_VIDEO) < 0)
     {
-        std::cout << "Failed to initialize the SDL2 library\n";
-        return -1;
+        std::cerr << "Failed to initialize the SDL2 library\n";
+        return 1;
     }
 
     SDL_Window *window = SDL_CreateWindow("SDL2 Window",
@@ -85,16 +78,19 @@ int main() {
 
     if(!window)
     {
-        std::cout << "Failed to create window\n";
-        return -1;
+        std::cerr << "Failed to create window\n";
+        SDL_Quit();
+        return 1;
     }
 
     SDL_Surface *window_surface = SDL_GetWindowSurface(window);
 
     if(!window_surface)
     {
-        std::cout << "Failed to get the surface from the window\n";
-        return -1;
+        std::cerr << "Failed to get the surface from the window\n";
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return 1;
     }
 
     std::vector<Color> accum(width * height, Color{0});
@@ -160,8 +156,6 @@ int main() {
             fpsTimer = now;
             framesSinceUpdate = 0;
         }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
     SDL_DestroyWindow(window);

@@ -10,6 +10,9 @@
 
 #include "core.h"
 
+// nodes with this many items or fewer become leaves instead of splitting further
+constexpr std::size_t maxLeafSize = 4;
+
 template <typename T>
 struct BVH {
     std::vector<const T*> items;
@@ -39,7 +42,7 @@ BVH<T>::BVH(std::vector<const T*> &&items) {
 
     box = {min, max};
 
-    if (items.size() < 5) { // TODO: magic number
+    if (items.size() <= maxLeafSize) {
         this->items = std::move(items);
     } else {
         int longestAxis{};
