@@ -11,6 +11,8 @@ struct Material {
 
     // the direction of the bounce: the ideal reflection, spread by roughness
     glm::dvec3 scatter(const glm::dvec3 &l) const {
+        if (roughness < epsilon) return glm::normalize(l);
+
         thread_local std::mt19937 gen{std::random_device{}()};
         std::normal_distribution<double> noise{0.0, roughness};
 
