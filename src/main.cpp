@@ -121,7 +121,8 @@ int main() {
         }
 
         SDL_LockSurface(window_surface);
-        auto cores = std::thread::hardware_concurrency();
+        int cores = static_cast<int>(std::thread::hardware_concurrency());
+        if (cores == 0) cores = 1;      // 0 means the core count is unknown
         int heightPerCore = height / cores;
         std::vector<std::jthread> threads;
         for (int i = 0; i < cores; ++i) {

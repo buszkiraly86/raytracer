@@ -17,3 +17,9 @@ add_executable(raytracer
 )
 
 target_link_libraries(raytracer PRIVATE SDL2::SDL2 glm::glm)
+
+if(MSVC)
+    target_compile_options(raytracer PRIVATE /W4)
+else()
+    target_compile_options(raytracer PRIVATE -Wall -Wextra)
+endif()
