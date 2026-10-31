@@ -3,9 +3,11 @@
 A path tracer written from scratch in C++23. It renders progressively into an SDL2 window: each frame adds one more
 sample per pixel, so the image starts out grainy and cleans up as you watch.
 
+![The test scene clearing up as samples accumulate: spheres from mirror-sharp to blurry in front of rainbow light strips](docs/images/test.gif)
+
 ![The armillary scene clearing up as samples accumulate, from 1 to 512 samples per pixel](docs/images/armillary.gif)
 
-![The test scene clearing up as samples accumulate: spheres from mirror-sharp to blurry in front of rainbow light strips](docs/images/test.gif)
+![A row of spheres from mirror-sharp to blurry, in front of rainbow light strips](docs/images/test.png)
 
 ![Copper trefoil knot inside a silver star ring](docs/images/knot_ring.png)
 
